@@ -17,7 +17,7 @@ const secretKey = 'supersecretkey'; // Key for encryption
 
 // Enable CORS
 app.use(cors({
-    origin: 'http://example.com', // Replace with your frontend URL
+    origin: 'http://localhost:5173', // Replace with your frontend URL
     methods: ['GET', 'POST'], // Allowed methods
     allowedHeaders: ['Content-Type'], // Allowed headers
 }));
