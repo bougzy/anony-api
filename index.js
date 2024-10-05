@@ -49,6 +49,12 @@ const Message = mongoose.model('Message', messageSchema);
 app.use(express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Define a route for the root URL
+app.get('/', (req, res) => {
+    res.send('Welcome to the Anonymous Chat API!'); // A simple message or an HTML page
+});
+
+
 // Generate Random User ID
 const generateUserId = () => {
     return crypto.randomBytes(4).toString('hex'); // 8 character random user id
