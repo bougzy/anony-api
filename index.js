@@ -34,7 +34,6 @@ mongoose.connect('mongodb+srv://browny:browny@browny.mpcnbcf.mongodb.net/browny'
         console.error('MongoDB connection error:', err.message);
     });
 
-
 // Message Schema and Model
 const messageSchema = new mongoose.Schema({
     fromUserId: String,
@@ -42,7 +41,7 @@ const messageSchema = new mongoose.Schema({
     roomId: String,
     message: String,
     timestamp: { type: Date, default: Date.now }
-  });
+});
 
 const Message = mongoose.model('Message', messageSchema);
 
@@ -52,7 +51,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Define a route for the root URL
 app.get('/', (req, res) => {
-    res.send('Welcome to the Anonymous Chat API!'); // A simple message or an HTML page
+    res.send('Welcome to the Anonymous Chat API!');
 });
 
 // Generate Random User ID
@@ -103,47 +102,29 @@ io.on('connection', (socket) => {
         socket.emit('waiting');
     }
 
-        // Handle room join
-      socket.on('joinRoom', async (roomId) => {
-      socket.join(roomId);
-      socket.roomId = roomId;
+    // Handle room join
+    socket.on('joinRoom', async (roomId) => {
+        socket.join(roomId);
+        socket.roomId = roomId;
 
-     // Load previous messages for the room
-     const messages = await Message.find({ roomId }).sort({ timestamp: 1 });
-     socket.emit('loadMessages', messages);
-   });
+        // Load previous messages for the room
+        const messages = await Message.find({ roomId }).sort({ timestamp: 1 });
+        socket.emit('loadMessages', messages);
+    });
 
+    // Handle incoming chat message
+    socket.on('chatMessage', async ({ message, roomId }) => {
+        if (roomId) {
+            const decryptedMessage = CryptoJS.AES.decrypt(message, secretKey).toString(CryptoJS.enc.Utf8);
 
-   // Handle incoming chat message
-  socket.on('chatMessage', async ({ message, roomId }) => {
-    if (roomId) {
-      const decryptedMessage = CryptoJS.AES.decrypt(message, secretKey).toString(CryptoJS.enc.Utf8);
-      
-      // Emit message to the room
-      io.to(roomId).emit('message', { from: socket.nickname, message: decryptedMessage });
+            // Emit message to the room
+            io.to(roomId).emit('message', { from: socket.nickname, message: decryptedMessage });
 
-      // Save the encrypted message in the database
-      const newMessage = new Message({
-        fromUserId: socket.userId,
-        roomId,
-        message
-      });
-      await newMessage.save();
-    }
-  });
-
-    // Handle chat message with encryption
-    socket.on('chatMessage', async ({ message }) => {
-        if (socket.partner) {
-            const encryptedMessage = CryptoJS.AES.encrypt(message, secretKey).toString();
-            socket.emit('message', { from: 'me', message });
-            socket.partner.emit('message', { from: socket.nickname, message });
-
-            // Save the encrypted message to the database
+            // Save the encrypted message in the database
             const newMessage = new Message({
                 fromUserId: socket.userId,
-                toUserId: socket.partner.userId,
-                message: encryptedMessage
+                roomId,
+                message
             });
             await newMessage.save();
         }
