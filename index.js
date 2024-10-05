@@ -13,7 +13,7 @@ const server = http.createServer(app);
 const io = socketio(server);
 
 const PORT = process.env.PORT || 3000;
-const secretKey = 'supersecretkey'; // Key for encryption
+const secretKey = '3Ct1qYTGje'; // Key for encryption
 
 // Enable CORS
 app.use(cors({
@@ -22,18 +22,17 @@ app.use(cors({
     allowedHeaders: ['Content-Type'], // Allowed headers
 }));
 
-
 // MongoDB connection
 mongoose.connect('mongodb+srv://browny:browny@browny.mpcnbcf.mongodb.net/browny', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log('MongoDB connected successfully');
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err.message);
-  });
+})
+    .then(() => {
+        console.log('MongoDB connected successfully');
+    })
+    .catch(err => {
+        console.error('MongoDB connection error:', err.message);
+    });
 
 // Message Schema and Model
 const messageSchema = new mongoose.Schema({
@@ -53,7 +52,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get('/', (req, res) => {
     res.send('Welcome to the Anonymous Chat API!'); // A simple message or an HTML page
 });
-
 
 // Generate Random User ID
 const generateUserId = () => {
@@ -84,8 +82,8 @@ io.on('connection', (socket) => {
 
     console.log(`User connected: ${userId} (${nickname})`);
 
-    // Emit the nickname to the frontend
-    socket.emit('nicknameAssigned', nickname);
+    // Emit the userId and nickname to the frontend
+    socket.emit('userInfo', { userId, nickname });
 
     // Check if there is a waiting user to pair with
     if (waitingUser) {
@@ -135,7 +133,7 @@ io.on('connection', (socket) => {
 
     // File sharing functionality
     app.post('/upload', upload.single('file'), (req, res) => {
-        const fileUrl = `https://anony-api.onrender.comu/uploads/${req.file.filename}`;
+        const fileUrl = `https://anony-api.onrender.com/uploads/${req.file.filename}`;
         if (socket.partner) {
             socket.partner.emit('fileShared', { from: socket.nickname, fileUrl });
         }
