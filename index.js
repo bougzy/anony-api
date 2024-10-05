@@ -135,7 +135,7 @@ io.on('connection', (socket) => {
 
     // File sharing functionality
     app.post('/upload', upload.single('file'), (req, res) => {
-        const fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+        const fileUrl = `https://anony-api.onrender.comu/uploads/${req.file.filename}`;
         if (socket.partner) {
             socket.partner.emit('fileShared', { from: socket.nickname, fileUrl });
         }
