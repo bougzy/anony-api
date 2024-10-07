@@ -9,15 +9,42 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-const corsOptions = {
-    origin: 'https://anonym-seven.vercel.app', // Frontend origin
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-};
+// // Middleware
+// const corsOptions = {
+//     origin: 'https://anonym-seven.vercel.app', // Frontend origin
+//     methods: ['GET', 'POST'],
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//     credentials: true,
+// };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+
+
+
+const allowedOrigins = [
+    'https://anonym-seven.vercel.app/login',
+    'https://anonym-seven.vercel.app/register',
+    'https://anonym-seven.vercel.app/messages',
+    'https://anonym-seven.vercel.app/link',
+  ];
+  
+  const corsOptions = {
+      origin: (origin, callback) => {
+          if (allowedOrigins.includes(origin)) {
+              callback(null, true);
+          } else {
+              callback(new Error('Not allowed by CORS'));
+          }
+      },
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true,
+  };
+  
+  app.use(cors(corsOptions));
+  
+
+
 app.use(bodyParser.json());
 
 // MongoDB Connection
