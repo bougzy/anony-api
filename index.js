@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 const corsOptions = {
-    origin: 'http://localhost:5173', // Frontend origin
+    origin: 'https://anonym-seven.vercel.app', // Frontend origin
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
